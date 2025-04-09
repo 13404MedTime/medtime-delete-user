@@ -206,3 +206,95 @@ func (f FunctionAssert) GetBenchmarkRequest() Asserts {
 		},
 	}
 }
+
+type GetListWithCount struct {
+	Status      string `json:"status"`
+	Description string `json:"description"`
+	Data        struct {
+		TableSlug string `json:"table_slug"`
+		Data      struct {
+			Count    int                      `json:"count"`
+			Response []map[string]interface{} `json:"response"`
+		} `json:"data"`
+		IsCached bool `json:"is_cached"`
+	} `json:"data"`
+	CustomMessage string `json:"custom_message"`
+}
+
+var tableSlugs = []string{
+	"patient_card",
+	"patient_cards",
+	"client_files",
+	"patient_visits",
+	"selected_doctors",
+	"puls",
+	"blood_sugar",
+	"imt",
+	"patient_medication",
+	"naznachenie",
+	"subscription",
+	"subscription_report",
+	"transactions",
+	"medicine_taking",
+	"medicine_taking_test",
+	"patient_medication_test",
+	"walk",
+}
+
+// Handle a serverless request
+func Handle(req []byte) string {
+
+	var (
+		request  NewRequestBody
+		response = Response{
+			Status: "done",
+		}
+	)
+
+	//Send2Bot("BEGIN >>>>>>>>" + string(req))
+
+	err := json.Unmarshal(req, &request)
+	if err != nil {
+		response.Status = "error"
+		response.Data = map[string]interface{}{
+			"message": "Error while unmarshaling request",
+		}
+		//Send2Bot("Error while unmarshaling request" + " " + err.Error())
+		resp, _ := json.Marshal(response)
+		return string(resp)
+	}
+
+	//clientId := cast.ToString(request.Data.ObjectIds[0])
+
+	// timeNow := time.Now()
+
+	//var wg sync.WaitGroup
+
+	//for _, v := range tableSlugs {
+	//	wg.Add(1)
+	//	go func(v string) {
+	//		DeleteWithRelations(v, clientId)
+	//		defer wg.Done()
+	//
+	//	}(v)
+	//}
+
+	//wg.Wait()
+
+	//DeleteWithRelationsForNotification(clientId)
+
+	// for _, v := range tableSlugs {
+
+	// 	DeleteWithRelations(v, clientId)
+
+	// }
+
+	// fmt.Println(time.Since(timeNow))
+
+	//Send2Bot("ENDING FUNC >>>>>")
+
+	response.Status = "done"
+	dataByte, _ := json.Marshal(response)
+
+	return string(dataByte)
+}
