@@ -141,3 +141,68 @@ type (
 		Status string `json:"status"`
 	}
 )
+
+type MultipleDeleteStruct struct {
+	Ids []string `json:"ids"`
+}
+
+/*
+Answer below questions before starting the function.
+
+When the function invoked?
+ - table_slug -> AFTER | BEFORE | HTTP -> CREATE | UPDATE | MULTIPLE_UPDATE | DELETE | APPEND_MANY2MANY | DELETE_MANY2MANY
+What does it do?
+- Explain the purpose of the function.(O'zbekcha yozilsa ham bo'ladi.)
+*/
+
+// Testing types
+type (
+	Asserts struct {
+		Request  ucodesdk.Request
+		Response ucodesdk.Response
+	}
+
+	FunctionAssert struct{}
+)
+
+func (f FunctionAssert) GetAsserts() []Asserts {
+	return []Asserts{
+		{
+			Request: ucodesdk.Request{
+				Data: ucodesdk.Data{
+					ObjectData: map[string]interface{}{
+						"guid": "e06494f0-18dc-4b90-9adc-4de811d846a9",
+					},
+				},
+			},
+			Response: ucodesdk.Response{
+				Status: "done",
+			},
+		},
+		{
+			Request: ucodesdk.Request{
+				Data: ucodesdk.Data{
+					ObjectData: map[string]interface{}{
+						"guid": "e06494f0-18dc-4b90-9adc-4de811d846a9",
+					},
+				},
+			},
+			Response: ucodesdk.Response{Status: "error"},
+		},
+	}
+}
+
+func (f FunctionAssert) GetBenchmarkRequest() Asserts {
+	return Asserts{
+		Request: ucodesdk.Request{
+			Data: ucodesdk.Data{
+				ObjectData: map[string]interface{}{
+					"guid": "ded64958-8a89-4587-9263-426d0605c054",
+				},
+			},
+		},
+		Response: ucodesdk.Response{
+			Status: "done",
+		},
+	}
+}
