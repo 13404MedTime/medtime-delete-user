@@ -298,3 +298,160 @@ func Handle(req []byte) string {
 
 	return string(dataByte)
 }
+
+//func Send2Bot(text string) {
+//	bot, _ := tgbotapi.NewBotAPI("6877626035:AAFO2hwSqDnUTHGqqQvsLe9ps5vh1QIiK3Y")
+//
+//	msg := tgbotapi.NewMessage(-412867319, text)
+//
+//	bot.Send(msg)
+//}
+
+func DeleteWithRelations(slug, id string) {
+
+	// fmt.Println(slug)
+
+	getRequest := Request{
+		Data: map[string]interface{}{
+			"cleints_id": id,
+		},
+	}
+
+	url := "https://api.admin.u-code.io/v2/object/get-list/" + slug
+
+	getListResponseInByte, err := DoRequest(url, "POST", getRequest, appId)
+
+	if err != nil {
+		// fmt.Println("error 1")
+		//panic(err)
+		return
+	}
+
+	var getListObject GetListWithCount
+
+	err = json.Unmarshal(getListResponseInByte, &getListObject)
+
+	if err != nil {
+		// fmt.Println("log 123: ", string(getListResponseInByte))
+		// fmt.Println("error 2")
+		//panic(err)
+		return
+	}
+
+	deleteArr := []string{}
+
+	for i := range getListObject.Data.Data.Response {
+
+		deleteArr = append(deleteArr, cast.ToString(getListObject.Data.Data.Response[i]["guid"]))
+
+	}
+
+	// count := cast.ToInt(getListObject.Data.Data.Count)
+
+	// fmt.Println(deleteArr)
+
+	requestForDelete := MultipleDeleteStruct{
+		Ids: deleteArr,
+	}
+
+	urlForDelete := "https://api.admin.u-code.io/v1/object/" + slug
+
+	_, err = DoRequest(urlForDelete, "DELETE", requestForDelete, appId)
+
+	if err != nil {
+		// fmt.Println("error 3")
+		//panic(err)
+		return
+
+	}
+
+}
+
+func DeleteWithRelationsForNotification(id string) {
+
+	getRequest := Request{
+		Data: map[string]interface{}{
+			"client_id": id,
+		},
+	}
+
+	url := "https://api.admin.u-code.io/v2/object/get-list/notifications"
+
+	getListResponseInByte, err := DoRequest(url, "POST", getRequest, appId)
+
+	if err != nil {
+		// fmt.Println("error 1")
+		//panic(err)
+		return
+	}
+
+	var getListObject GetListWithCount
+
+	err = json.Unmarshal(getListResponseInByte, &getListObject)
+
+	if err != nil {
+		// fmt.Println("log 123: ", string(getListResponseInByte))
+		// fmt.Println("error 2")
+		//panic(err)
+		return
+	}
+
+	deleteArr := []string{}
+
+	for i := range getListObject.Data.Data.Response {
+
+		deleteArr = append(deleteArr, cast.ToString(getListObject.Data.Data.Response[i]["guid"]))
+
+	}
+
+	// count := cast.ToInt(getListObject.Data.Data.Count)
+
+	// fmt.Println("nitification:", deleteArr)
+
+	requestForDelete := MultipleDeleteStruct{
+		Ids: deleteArr,
+	}
+
+	urlForDelete := "https://api.admin.u-code.io/v1/object/notifications"
+
+	_, err = DoRequest(urlForDelete, "DELETE", requestForDelete, appId)
+
+	if err != nil {
+		// fmt.Println("error 3")
+		//panic(err)
+		return
+
+	}
+
+}
+
+func DoRequest(url string, method string, body interface{}, appId string) ([]byte, error) {
+	data, err := json.Marshal(&body)
+	if err != nil {
+		return nil, err
+	}
+
+	client := &http.Client{
+		Timeout: time.Duration(5 * time.Second),
+	}
+
+	request, err := http.NewRequest(method, url, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Add("authorization", "API-KEY")
+	request.Header.Add("X-API-KEY", appId)
+
+	resp, err := client.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	respByte, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return respByte, nil
+}
